@@ -1,9 +1,15 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 
-import { Hello } from "./components/Hello";
+import App from './components/App'
+import { createBrowserHistory } from 'history'
+import { Router } from 'react-router-dom'
+
+export const history = createBrowserHistory()
 
 ReactDOM.render(
-    <Hello compiler="TypeScript" framework="React" />,
-    document.getElementById("example")
-);
+  <Router history={history}>
+    <App />
+  </Router>,
+  document.getElementById('root')
+)
