@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom'
 import App from './components/App'
 import { createBrowserHistory } from 'history'
 import { Router } from 'react-router-dom'
+import './styles.css'
 
 export const history = createBrowserHistory()
 

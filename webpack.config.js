@@ -26,6 +26,10 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      // {
+      //   test: /\.component.svg$/,
+      //   use: ['@svgr/webpack'],
+      // },
       {
         test: /\.(png|svg|jpg|gif)$/,
         use: ['file-loader'],
