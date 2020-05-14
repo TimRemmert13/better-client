@@ -1,35 +1,60 @@
-import React from 'react'
-import TabBar from '../components/TabBar'
+import React, { useContext } from 'react'
 import SideBar from '../components/SideBar'
-import { Grid, makeStyles, Theme, createStyles } from '@material-ui/core'
+import {
+  makeStyles,
+  Theme,
+  createStyles,
+  CssBaseline,
+  Typography,
+  Grid,
+  Divider,
+} from '@material-ui/core'
+import { UserStoreContext } from '../stores/UserStore'
+import moment from 'moment'
+import Unauthorized from './Unauthorized'
+import TopBar, { drawerWidth } from '../components/TopBar'
+import { grey } from '@material-ui/core/colors'
 
 const Dashboard = () => {
+  const { user } = useContext(UserStoreContext)
+  // if (user == null) {
+  //   return <Unauthorized />
+  // }
+
   const useStyles = makeStyles((theme: Theme) =>
     createStyles({
       root: {
         display: 'flex',
       },
-      sideBar: {
-        padding: 10,
+      // necessary for content to be below app bar
+      toolbar: theme.mixins.toolbar,
+      content: {
+        flexGrow: 1,
+        padding: theme.spacing(3),
       },
     })
   )
   const classes = useStyles()
+
   return (
     <div className={classes.root}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <TabBar />
+      <CssBaseline />
+      <TopBar />
+      <SideBar />
+      <main className={classes.content}>
+        <div className={classes.toolbar} />
+        <Grid container alignItems="flex-end" spacing={3}>
+          <Grid item>
+            <Typography variant="h6">Welcome User</Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body1">
+              {moment().format('MMMM Do YYYY')}
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid item xs={3}>
-          <SideBar />
-        </Grid>
-        <Grid item xs={9}>
-          <h1>This is the Dashboard</h1>
-        </Grid>
-      </Grid>
+      </main>
     </div>
   )
 }
-
 export default Dashboard

@@ -9,7 +9,7 @@ import LandingPage from '../pages/LandingPage'
 import Dashboard from '../pages/Dashboard'
 import CreateGoal from '../pages/CreateGoal'
 import NotFound from '../pages/NotFound'
-import NavBar from './NavBar'
+import NavBar from './TopBar'
 
 const App: React.FC<RouteComponentProps> = () => {
   return (

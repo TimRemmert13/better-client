@@ -14,6 +14,7 @@ import Logo from './../../public/assets/logo.svg'
 import { UserStoreContext } from '../stores/UserStore'
 import { useForm } from 'react-hook-form'
 import { ILoginDto } from '../models/dtos/UserDtos'
+import { observer } from 'mobx-react-lite'
 
 function getModalStyle() {
   const top = 50
@@ -42,7 +43,7 @@ const LandingPage = () => {
   const [modelStyle] = React.useState(getModalStyle)
   const [open, setOpen] = React.useState(false)
   const userStore = useContext(UserStoreContext)
-  const { user, login } = userStore
+  const { login, displayError } = userStore
 
   const { register, handleSubmit, errors } = useForm<ILoginDto>()
 
@@ -110,6 +111,11 @@ const LandingPage = () => {
             )}
           </Grid>
           <Grid item>
+            {displayError && (
+              <Alert severity="error">username or password is incorrect</Alert>
+            )}
+          </Grid>
+          <Grid item>
             <Button variant="contained" color="primary" type="submit">
               Log in
             </Button>
@@ -136,4 +142,4 @@ const LandingPage = () => {
   )
 }
 
-export default LandingPage
+export default observer(LandingPage)
