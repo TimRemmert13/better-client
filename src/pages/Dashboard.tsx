@@ -8,12 +8,14 @@ import {
   Typography,
   Grid,
   Divider,
+  Paper,
 } from '@material-ui/core'
 import { UserStoreContext } from '../stores/UserStore'
 import moment from 'moment'
 import Unauthorized from './Unauthorized'
 import TopBar, { drawerWidth } from '../components/TopBar'
 import { grey } from '@material-ui/core/colors'
+import LineGraph from '../components/LineGraph'
 
 const Dashboard = () => {
   const { user } = useContext(UserStoreContext)
@@ -51,6 +53,13 @@ const Dashboard = () => {
             <Typography variant="body1">
               {moment().format('MMMM Do YYYY')}
             </Typography>
+          </Grid>
+        </Grid>
+        <Grid container>
+          <Grid item>
+            <Paper elevation={3}>
+              <LineGraph />
+            </Paper>
           </Grid>
         </Grid>
       </main>
