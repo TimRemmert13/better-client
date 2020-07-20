@@ -1,7 +1,6 @@
 import React, { HtmlHTMLAttributes } from 'react'
 import * as d3 from 'd3'
 import { blue } from '@material-ui/core/colors'
-import { line, xml } from 'd3'
 
 type Data = {
   total: number
@@ -10,20 +9,10 @@ type Data = {
 
 class LineGraph extends React.Component {
   private canvas?: SVGElement | null
-  private line: d3.Selection<
-    SVGPathElement,
-    Data[],
-    null,
-    undefined
-  > | null = null
-  private dot: d3.Selection<
-    SVGCircleElement,
-    Data,
-    SVGGElement,
-    unknown
-  > | null = null
-  private x: d3.ScaleTime<number, number> | null = null
-  private y: d3.ScaleLinear<number, number> | null = null
+
+  private graphWidth: number = 1400
+
+  private graphHeight: number = 400
 
   public data: Data[] = [
     {
@@ -88,71 +77,117 @@ class LineGraph extends React.Component {
   ]
 
   public componentDidMount() {
-    this.initialize(this.initData)
+    //window.addEventListener('resize', this.updateDimensions)
     this.update(this.data)
   }
 
-  initialize = (data: Data[]) => {
+  public componentWillUnmount() {
+    //window.removeEventListener('resize', this.updateDimensions)
+  }
+
+  initialize = () => {}
+
+  update = (data: Data[]) => {
     const margin = { top: 40, right: 20, bottom: 50, left: 40 }
 
-    const graphWidth = 560 - (margin.left + margin.right)
-    const graphHeight = 400 - (margin.top + margin.bottom)
+    this.graphWidth = 1000 - (margin.left + margin.right)
+    this.graphHeight = 400 - (margin.top + margin.bottom)
 
     const svg = d3
       .select(this.canvas!)
-      .attr('width', graphWidth + margin.left + margin.right)
-      .attr('height', graphHeight + margin.top + margin.bottom)
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .attr('viewBox', '0 0 1000 400')
+      .attr('display', 'inline-block')
+      .attr('postion', 'absolute')
+      .attr('top', '0')
+      .attr('left', '0')
 
     const graph = svg
       .append('g')
-      .attr('width', graphWidth)
-      .attr('height', graphHeight)
+      .attr('width', this.graphWidth)
+      .attr('height', this.graphHeight)
       .attr('transform', `translate(${margin.left}, ${margin.top})`)
 
     // define scales
-    this.x = d3.scaleTime().range([0, graphWidth])
-    this.y = d3.scaleLinear().range([graphHeight, 0])
+    const x = d3.scaleTime().range([0, this.graphWidth])
+    const y = d3.scaleLinear().range([this.graphHeight, 0])
 
     // axis groups
     const xAxisGroup = graph
       .append('g')
       .attr('class', 'x-axis')
-      .attr('transform', `translate(0, ${graphHeight})`)
+      .attr('transform', `translate(0, ${this.graphHeight})`)
 
     const yAxisGroup = graph.append('g').attr('class', 'y-axis')
 
-    // initialize line
-    this.line = graph
-      .append('g')
-      .append('path')
-      .datum(this.initData)
-      .attr(
-        'd',
-        d3
-          .line<Data>()
-          .x((d) => this.x!(d.date))
-          .y((d) => this.y!(d.total))
-      )
-      .attr('stroke', 'black')
-      .style('stroke-width', 4)
-      .style('fill', 'none')
+    // d3 line path generator
+    const line = d3
+      .line<Data>()
+      .x(function (d) {
+        return x(d.date)
+      })
+      .y(function (d) {
+        return y(d.total)
+      })
 
-    // initialize dots
-    this.dot = graph
-      .selectAll('circle')
-      .data(this.initData)
+    const path = graph.append('path')
+    // set scale domains
+    const xDomain = d3.extent(data, (d) => d.date)
+    const max = d3.max(data, (d) => d.total) as number
+    x.domain([xDomain[0]!, xDomain[1]!])
+    y.domain([0, max])
+
+    // update path data
+    path
+      .data([this.data])
+      .attr('fill', 'none')
+      .attr('stroke', blue[500])
+      .attr('stroke-width', 2)
+      .attr('d', line)
+
+    const totalLength = path.node()?.getTotalLength()
+
+    path
+      .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+      .attr('stroke-dashoffset', totalLength!)
+      .transition()
+      .delay(2000)
+      .duration(2000)
+      .ease(d3.easeLinear)
+      .attr('stroke-dashoffset', 0)
+
+    // create circles for objects
+    const circles = graph.selectAll('circle').data(data)
+
+    //update existing points
+    circles
+      .attr('r', 4)
+      .attr('cx', (d) => x(d.date))
+      .attr('cy', this.graphHeight) // set starting point
+      .transition()
+      .duration(2000)
+      .attr('cy', (d) => y(d.total))
+
+    // add new points
+    circles
       .enter()
       .append('circle')
-      .attr('cx', (d) => this.x!(d.date))
-      .attr('cy', (d) => this.y!(d.total))
-      .attr('r', 7)
-      .style('fill', blue[500])
+      .attr('r', 4)
+      .attr('fill', '#000000')
+      .attr('cx', (d) => x(d.date))
+      .attr('cy', this.graphHeight)
+      .transition()
+      .duration(2000)
+      .attr('cy', (d) => y(d.total))
+
+    // remove deleted points
+    circles.exit().remove()
 
     // create axis
-    const xAxis = d3.axisBottom(this.x).ticks(7)
+    const xAxis = d3.axisBottom(x).ticks(7)
     //.tickFormat(d3.timeFormat('%b %d'))
 
-    const yAxis = d3.axisLeft(this.y).ticks(4)
+    const yAxis = d3.axisLeft(y).ticks(4)
 
     // call Axis
     xAxisGroup.call(xAxis)
@@ -165,24 +200,14 @@ class LineGraph extends React.Component {
       .attr('text-anchor', 'end')
   }
 
-  update = (data: Data[]) => {
-    this.line!.datum(data)
-      .transition()
-      .duration(2000)
-      .attr(
-        'd',
-        d3
-          .line<Data>()
-          .x((d) => this.x!(d.date))
-          .y((d) => this.y!(d.total))
-      )
-    this.dot!.data(data)
-      .transition()
-      .duration(2000)
-      .attr('cx', (d) => this.x!(d.date))
-      .attr('cy', (d) => this.y!(d.total))
+  updateDimensions = (event: UIEvent) => {
+    const containerWidth = document.getElementById('graph-container')
+      ?.clientWidth
+    const margin = { top: 40, right: 20, bottom: 50, left: 40 }
+    d3.select(this.canvas!)
+      .attr('width', containerWidth!)
+      .attr('height', this.graphHeight + margin.top + margin.bottom)
   }
-
   lineTween = (d: Data) => {
     let i = d3.interpolate(0, d.total)
     return function (t: any) {

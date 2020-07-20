@@ -16,6 +16,7 @@ import Unauthorized from './Unauthorized'
 import TopBar, { drawerWidth } from '../components/TopBar'
 import { grey } from '@material-ui/core/colors'
 import LineGraph from '../components/LineGraph'
+import HeatMap from '../components/HeatMap'
 
 const Dashboard = () => {
   const { user } = useContext(UserStoreContext)
@@ -55,10 +56,25 @@ const Dashboard = () => {
             </Typography>
           </Grid>
         </Grid>
-        <Grid container>
-          <Grid item>
-            <Paper elevation={3}>
+        <Grid container spacing={3} justify="center" alignItems="center">
+          <Grid item xs={12}>
+            <Paper
+              elevation={3}
+              id="graph-container"
+              style={{
+                display: 'inline-block',
+                position: 'relative',
+                width: '100%',
+                verticalAlign: 'top',
+                overflow: 'hidden',
+              }}
+            >
               <LineGraph />
+            </Paper>
+          </Grid>
+          <Grid item xs={12}>
+            <Paper elevation={3}>
+              <HeatMap />
             </Paper>
           </Grid>
         </Grid>
