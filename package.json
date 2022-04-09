@@ -59,7 +59,7 @@
     "jwt-decode": "^2.2.0",
     "mobx": "^5.15.4",
     "mobx-react-lite": "^2.0.6",
-    "moment": "^2.25.3",
+    "moment": "^2.29.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^5.7.1",
