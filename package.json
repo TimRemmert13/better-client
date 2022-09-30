@@ -53,7 +53,7 @@
     "@types/react-toastify": "^4.1.0",
     "axios": "^0.19.2",
     "clsx": "^1.1.0",
-    "d3": "^5.16.0",
+    "d3": "^7.6.1",
     "history": "^4.10.1",
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^2.2.0",
